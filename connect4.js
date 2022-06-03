@@ -16,31 +16,25 @@ const board = []; // array of rows, each row is array of cells  (board[y][x])
  */
 function makeBoard() {
   // TODO: set "board" to empty HEIGHT x WIDTH matrix array
-  // loop through array and push null to the array
-  // make loop nested to duplicate row
+
   const subArr = []         //create new, local subArray
   board.length = 0;         //empty board
 
-  // Watch is more efficient?  This or a nested loop? 
-  // Make array with specified number of columns
-  for (let x = 0; x < WIDTH; x++){      
-    subArr.push(null);
+  // Make board without a shallow copy
+  for (let y = 0; y < HEIGHT; y++){   
+    let subArr = [];   
+    for (let x = 0; x < WIDTH; x++) {
+      subArr.push(null);
+    }
+    board.push(subArr);
   }
-  
-  // Add specified number of rows to board
-  for (let y = 0; y < HEIGHT; y++){
-    board[y] = subArr;
-  }
-
+ 
 }
 
 /** makeHtmlBoard: make HTML table and row of column tops. */
 
 function makeHtmlBoard() {
   // TODO: get "htmlBoard" variable from the item in HTML w/ID of "board"
-{/* <div id="game">
-  <table id="board"></table>
-</div> */}
   let htmlBoard = document.getElementById("board")      //board has to be linked to the table in html; id='board'
 
 
@@ -73,22 +67,17 @@ function makeHtmlBoard() {
 
 function findSpotForCol(x) {
   // TODO: write the real version of this, rather than always returning 0
-  return 0;
+  // let z = HEIGHT - 1;
+
+    for (let y = HEIGHT-1; y > -1; y--){
+      if (board[y][x] === null){
+        return y;
+      }
+  }
+  return false; 
 }
 
 /** placeInTable: update DOM to place piece into HTML table of board */
-
-function pickPiece(){
-  let piece = '';
-  if(currPlayer==1){
-    piece = 'p1';
-  }
-  else{
-    piece = '2';
-  }
-  return piece;
-}
-
 
 function placeInTable(y, x) {
   // TODO: make a div and insert into correct table cell
@@ -102,13 +91,7 @@ function placeInTable(y, x) {
   const cell = document.getElementById(`${y}-${x}`);
   const div = document.createElement("div");
 
-  //check player
-
-  let piece = pickPiece();
-
-  // div.classList.add(`${piece}`);
-
-  let test = 1;
+  div.classList.add(`p${currPlayer}`);
 
   cell.append(div);
 
@@ -116,37 +99,62 @@ function placeInTable(y, x) {
 
 /** endGame: announce game end */
 
-function endGame(msg) {
+function endGame(message) {
   // TODO: pop up alert message
+  alert(message);
+
+
 }
 
 /** handleClick: handle click of column top to play piece */
 
 function handleClick(evt) {
+     
   // get x from ID of clicked cell
-  let x = +evt.target.id;
+  const x = +evt.target.id;
 
   // get next spot in column (if none, ignore click)
-  let y = findSpotForCol(x);
-  if (y === null) {
+  const y = findSpotForCol(x);
+  if (y === false) {
     return;
   }
-
-  // place piece in board and add to HTML table
+ 
+ 
+    // place piece in board and add to HTML table
   // TODO: add line to update in-memory board
   placeInTable(y, x);
+  board[y][x] = currPlayer;
 
-  // check for win
-  // if (checkForWin()) {
-  //   return endGame(`Player ${currPlayer} won!`);
-  // }
 
-  // check for tie
-  // TODO: check if all cells in board are filled; if so call, call endGame
+    // check for win
+    if (checkForWin()) {
+      return endGame(`Player ${currPlayer} won!`);
+    }
+  
+      // check for tie
+    // TODO: check if all cells in board are filled; if so call, call endGame
 
-  // switch players
+    //planned to loop through solution.  Checked solution and they used two every methods
+    // let newArr = board[6].every(function(val){
+    //   return val !== null;
+    // });
+    // if(newArr){
+    //   let message = "Tie game! Play again!";
+    //   endGame(message);
+    // }
+
+
+
+    // switch players
   // TODO: switch currPlayer 1 <-> 2
+    currPlayer = (currPlayer == 1) ? 2:1;  
+
+
 }
+
+
+
+
 
 /** checkForWin: check board cell-by-cell for "does a win start here?" */
 
@@ -157,12 +165,12 @@ function checkForWin() {
     //  - returns true if all are legal coordinates & all match currPlayer
 
     return cells.every(
-      ([y, x]) =>
+      ([y, x]) =>          //checks if all the coordinates are in bounds
         y >= 0 &&
         y < HEIGHT &&
         x >= 0 &&
         x < WIDTH &&
-        board[y][x] === currPlayer
+        board[y][x] === currPlayer      //checks if player has this square and returns true 
     );
   }
 
